@@ -342,8 +342,7 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
         // This will fill the Storage with algorithms that "try" to avoid repeating resulting cubes, there are no repeating cubes with in 3 moves cube.
         // Verify we can still index on this storage, only new empty storages are accepted
         if (algCount != 0) {
-            console.info("You cannot index on pre filed algorithm storage");
-            return false;
+            throw "You cannot index on pre filed algorithm storage";
         }
         // We can use the algSaver now
         usesAlgSaver = true;
@@ -449,7 +448,6 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
             if (!isThereNextSequence) {
                 // we are done
                 acceptsNewAlgs = false;
-                return true;
                 break;
             }
 
@@ -637,11 +635,7 @@ function Filter(cubeSize, storageFormat=CUBE_DATA_TYPE.Surface, algStorage=new A
                 break;
             }
             default: {
-                if (shouldLogErrors) {
-                    console.info("Invalid filter type, no changes were made.");
-                }
-                return false;
-                break;
+                throw "Invalid filter type, could not apply filter to cube";
             }
         }
     };
@@ -1037,9 +1031,7 @@ Filter.createNewFilterData = function (cubeSize, storageFormat = CUBE_DATA_TYPE.
             break;
         }
         default: {
-            if (shouldLogErrors) {
-                console.info("Error: Could not create filter data, unknown storage format!");
-            }
+            throw "Error: Could not create filter data, unknown storage format!";
         }
     }
     return result;
@@ -1071,11 +1063,8 @@ Filter.buildBaseFilters = function (cubeSize, storageFormat = CUBE_DATA_TYPE.Sur
     var layerCount = AlgorithmStorage.getLayerCount(cubeSize);
     var isOdd = cubeSize % 2 === 1;
     var algStorage = new AlgorithmStorage(cubeSize, 1, layerCount * 3);
-    var success = algStorage.selfIndex();
-    if (!success) {
-        console.info("Error creating base filters, algorithm storage failed to self index.");
-        return -1;
-    }
+    algStorage.selfIndex();
+
     var filterList = [];
     for (var i = 0; i < layerCount * 3; i++) {
         filterList.push(new Filter(cubeSize, storageFormat, algStorage, i, true));
