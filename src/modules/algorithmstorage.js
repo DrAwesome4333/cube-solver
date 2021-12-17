@@ -152,15 +152,17 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
 
     this.getFilter = function (algId=0, cubeStorageFormat=CUBE_DATA_TYPE.Surface) {
         if ((algId > algCount * 3 && usesAlgSaver) || (algId > algCount && !usesAlgSaver)) {
-            if (shouldLogErrors) {
-                console.info("Could not get correct filter, invalid algId");
-            }
-            return new Filter(cubeSize, cubeStorageFormat);
+            throw "Could not get correct filter, invalid algId";
         }
         return new Filter(cubeSize, cubeStorageFormat, this, algId);
     }
 
-    this.addAlgorithm = function (alg=[0]) {
+    /**
+     * Adds an algorithm to the storage
+     * @param {number[]} alg 
+     * @returns {boolean} True if successful
+     */
+    this.addAlgorithm = function (alg) {
         // Adds an algorithm to the set
 
         // Check if we still accept new algs
