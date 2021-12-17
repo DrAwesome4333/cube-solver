@@ -167,8 +167,7 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
 
         // Check if we still accept new algs
         if (!acceptsNewAlgs) {
-            console.info("This storage no longer accepts algorithms because it was indexed");
-            return false;
+            throw "This storage no longer accepts algorithms because it was indexed";
         }
         // Check if we recieved moves in single or pair form
         if (alg.length == algLength * 2) {
@@ -182,8 +181,7 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
 
         } else if (alg.length != algLength) {
             // If the alg given is not either double the alg length or the alg length, then it is an invalid value
-            console.info("Invalid algorithm given");
-            return false;
+            throw "Invalid algorithm given";
         }
 
         // If we are over the max, we need to create a new data storage
@@ -201,257 +199,36 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
 
     }
 
-    this.asyncSelfIndex = async function () {
-        // Exactly the same as Self index, except this will take advantage of a web worker
-        // TODO make this async (⓿_⓿)
-        // Verify we can still index on this storage, only new empty storages are accepted
-        if (algCount != 0) {
-            console.info("You cannot index on pre filed algorithm storage");
-            return false;
-        }
-        // We can use the algSaver now
-        usesAlgSaver = true;
-
-        if (true) {
-            var moves = [0];
-            var startingAlgorithm = [];
-
-            function isSame(a = [], b = []) {
-                // sees if two algorithms are the same
-                if (a.length == b.length) {
-                    const len = a.length;
-                    for (var i = 0; i < len; i++) {
-                        if (a[i] != b[i]) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }
-
-            function findNextSequence() {
-                // Finds the next valid sequence returns true if we found the next one, false if there are no more
-                var backIndex = 0;
-                // Get the previous moves - the one we are on
-                var previousMoves = moves.slice(0, moves.length - 1);
-                // Get the current end move value, and increment it by 1
-                var proposedMove = moves[moves.length - 1] + 1;
-
-
-                function goBack() {
-                    backIndex++;
-                    // Have we reached the max we can go back? if so return false
-                    if (backIndex > moves.length - 1) {
-                        backIndex--;
-                        return false;
-                    }
-                    var previousMoves = moves.slice(0, moves.length - (1 + backIndex));
-                    var proposedMove = moves[moves.length - (1 + backIndex)] + 1;
-
-                    while (true) {
-                        // Did we over flow our with our move, if so , set our current move to 0,
-                        // and go back
-                        // Note that previous moves do incorporate direction into the algorithm
-                        if (proposedMove >= layerCount * 3) {
-                            proposedMove = 0;
-                            moves[moves.length - (1 + backIndex)] = 0;
-                            // Go back if we can, if we cannot, then we are done
-                            var canGoOn = goBack();
-
-                            if (!canGoOn) {
-                                return false;
-                            } else {
-                                // update previous moves now.
-                                previousMoves = moves.slice(0, moves.length - 1);
-                            }
-                        }
-                        // Do we have a valid move?
-                        if (AlgorithmStorage.checkNextMove(cubeSize, previousMoves, proposedMove)) {
-                            moves[moves.length - (1 + backIndex)] = proposedMove;
-                            backIndex--;
-                            return true;
-                            break;
-                        } else {
-                            // Keep on looking
-                            proposedMove++;
-                        }
-                    }
-                }
-
-                while (true) {
-                    // Did we over flow our with our move, if so , set our current move to 0,
-                    // and go back
-                    if (proposedMove >= layerCount) {
-                        proposedMove = 0;
-                        moves[moves.length - 1] = 0;
-                        // Go back if we can, if we cannot, then we are done
-                        var canGoOn = goBack();
-
-                        if (!canGoOn) {
-                            return false;
-                            break;
-                        } else {
-                            previousMoves = moves.slice(0, moves.length - 1);
-                            // update previous moves now
-                        }
-                    }
-                    // Do we have a valid move?
-                    if (AlgorithmStorage.checkNextMove(cubeSize, previousMoves, proposedMove)) {
-                        moves[moves.length - 1] = proposedMove;
-                        return true;
-                        break;
-                    } else {
-                        // Increment the move
-                        proposedMove++;
-                    }
-                }
-            }
-            // Generate the first valid sequence of moves
-            while (moves.length < algLength) {
-                // find the first valid move
-                for (var i = 0; i < layerCount; i++) {
-                    if (AlgorithmStorage.checkNextMove(cubeSize, moves, i)) {
-                        moves.push(i);
-                        break;
-                    }
-
-                }
-            }
-
-            startingAlgorithm = moves.slice(0); // Save this for comparing later
-
-            while (true) {
-                // Save Current Sequence
-                this.addAlgorithm(moves);
-
-                var isThereNextSequence = findNextSequence();
-                if (!isThereNextSequence) {
-                    // we are done
-                    return true;
-                    break;
-                }
-
-            }
-
-
-        }
-
-    }
-
     this.selfIndex = function () {
         // This will fill the Storage with algorithms that "try" to avoid repeating resulting cubes, there are no repeating cubes with in 3 moves cube.
         // Verify we can still index on this storage, only new empty storages are accepted
         if (algCount != 0) {
-            throw "You cannot index on pre filed algorithm storage";
+            throw "You cannot index on pre filled algorithm storage";
         }
-        // We can use the algSaver now
-        usesAlgSaver = true;
+        var self = this;
 
-        var moves = [0];
-
-        function findNextSequence() {
-            // Finds the next valid sequence returns true if we found the next one, false if there are no more
-            var backIndex = 0;
-            // Get the previous moves - the one we are on
-            var previousMoves = moves.slice(0, moves.length - 1);
-            // Get the current end move value, and increment it by 1
-            var proposedMove = moves[moves.length - 1] + 1;
-
-
-            function goBack() {
-                backIndex++;
-                // Have we reached the max we can go back? if so return false
-                if (backIndex > moves.length - 1) {
-                    backIndex--;
-                    return false;
-                }
-                var previousMoves = moves.slice(0, moves.length - (1 + backIndex));
-                var proposedMove = moves[moves.length - (1 + backIndex)] + 1;
-
-                while (true) {
-                    // Did we overflow our with our move, if so , set our current move to 0,
-                    // and go back
-                    // Note that previous moves do incorporate direction into the algorithm
-                    if (proposedMove >= layerCount * 3) {
-                        proposedMove = 0;
-                        moves[moves.length - (1 + backIndex)] = 0;
-                        // Go back if we can, if we cannot, then we are done
-                        var canGoOn = goBack();
-
-                        if (!canGoOn) {
-                            return false;
-                        } else {
-                            // update previous moves now.
-                            previousMoves = moves.slice(0, moves.length - (1 + backIndex));
-                        }
-                    }
-                    // Do we have a valid move?
-                    if (AlgorithmStorage.checkNextMove(cubeSize, previousMoves, proposedMove)) {
-                        moves[moves.length - (1 + backIndex)] = proposedMove;
-                        backIndex--;
-                        return true;
-                        break;
-                    } else {
-                        // Keep on looking
-                        proposedMove++;
+        /**
+         * Recursive function for getting all algorithms
+         * @param {number[]} moves 
+         * @param {number} maxDepth 
+         */
+        function getAlgs(moves, maxDepth){
+            if(moves.length == maxDepth){
+                self.addAlgorithm(moves);
+            }else{
+                var curMoves = moves.slice(0);
+                curMoves.push(0);
+                for(var i = 0; i < layerCount * 3; i++){
+                    if(AlgorithmStorage.checkNextMove(cubeSize, moves, i)){
+                        curMoves[moves.length] = i;
+                        getAlgs(curMoves, maxDepth);
                     }
                 }
             }
-
-            while (true) {
-                // Did we over flow our with our move, if so , set our current move to 0,
-                // and go back
-                if (proposedMove >= layerCount) {
-                    proposedMove = 0;
-                    moves[moves.length - 1] = 0;
-                    // Go back if we can, if we cannot, then we are done
-                    var canGoOn = goBack();
-
-                    if (!canGoOn) {
-                        return false;
-                        break;
-                    } else {
-                        previousMoves = moves.slice(0, moves.length - 1);
-                        // update previous moves now
-                    }
-                }
-                // Do we have a valid move?
-                if (AlgorithmStorage.checkNextMove(cubeSize, previousMoves, proposedMove)) {
-                    moves[moves.length - 1] = proposedMove;
-                    return true;
-                    break;
-                } else {
-                    // Increment the move
-                    proposedMove++;
-                }
-            }
         }
-        // Generate the first valid sequence of moves
-        while (moves.length < algLength) {
-            // find the first valid move
-            // at this level we ignore the final move's direction as all would be valid
-            for (var i = 0; i < layerCount; i++) {
-                if (AlgorithmStorage.checkNextMove(cubeSize, moves, i)) {
-                    moves.push(i);
-                    break;
-                }
-
-            }
-        }
-
-        while (true) {
-            // Save Current Sequence
-            this.addAlgorithm(moves);
-
-
-            var isThereNextSequence = findNextSequence();
-            if (!isThereNextSequence) {
-                // we are done
-                acceptsNewAlgs = false;
-                break;
-            }
-
-        }
+        
+        getAlgs([], algLength);
+        acceptsNewAlgs = false;
 
     }
 

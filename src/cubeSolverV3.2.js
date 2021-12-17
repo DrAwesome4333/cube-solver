@@ -2286,7 +2286,7 @@ import {solveCube, CubeNode} from "./modules/solver.js"
 						break;
 					}
 					case "sucs":{
-						var algStorage = new AlgorithmStorage(resp.cubeSize, resp.algLength, 1);
+						var algStorage = new AlgorithmStorage(resp.cubeSize, resp.alg.length, 1);
 						
 						algStorage.addAlgorithm(resp.alg);
 						queItem.successCallBack(algStorage, 0, resp.time, resp.cycles);
