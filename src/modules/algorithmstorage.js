@@ -206,6 +206,7 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
             throw "You cannot index on pre filled algorithm storage";
         }
         var self = this;
+        usesAlgSaver = true;
 
         /**
          * Recursive function for getting all algorithms
@@ -218,7 +219,12 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
             }else{
                 var curMoves = moves.slice(0);
                 curMoves.push(0);
-                for(var i = 0; i < layerCount * 3; i++){
+                var moveCount = layerCount * 3;
+                if(moves.length == maxDepth - 1){
+                    // As alg saver is in use, there is no need to keep alternate directions on final move, just the layer
+                    moveCount = layerCount;
+                }
+                for(var i = 0; i < moveCount; i++){
                     if(AlgorithmStorage.checkNextMove(cubeSize, moves, i)){
                         curMoves[moves.length] = i;
                         getAlgs(curMoves, maxDepth);
@@ -294,7 +300,7 @@ AlgorithmStorage.checkNextMove = function (cubeSize, previousMoves, proposedNext
                 break;
             }
             // If both of these tests passed, we continue on to the next previous move to see if this move is valid with that
-            // as we need to find the first no parallel move that the move intersects to consider it unique
+            // as we need to find the first non parallel move that the move intersects to consider it unique
             continue;
         } else {
             break;
