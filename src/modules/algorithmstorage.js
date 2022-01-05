@@ -190,7 +190,7 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
             return data.setArray(algLength * (algCount - 1), alg);
         } else {
             // Increase maxAlgs by 10%
-            var newData = new BinaryData(maxAcceptedValue, data.getArray(), Math.ceil(maxAlgs * 1.1));
+            var newData = new BinaryData(maxAcceptedValue, data.getArray(), Math.ceil(maxAlgs * 1.1) * algLength);
             data = newData;
             maxAlgs = Math.ceil(maxAlgs * 1.1);
             algCount++;
