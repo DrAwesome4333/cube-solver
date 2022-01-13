@@ -40,7 +40,6 @@ export function BinaryData(maxElementSize = 1, data = [0], elementCount = 1, dat
         var arrayId = Math.floor(elementIndex / MAX_ARRAY_SIZE);
         var indexInArray = elementIndex % MAX_ARRAY_SIZE;
         dataArrays[arrayId][indexInArray] = value;
-        return true;
     }
 
     this.getData = function (elementIndex = 0) {
@@ -85,19 +84,26 @@ export function BinaryData(maxElementSize = 1, data = [0], elementCount = 1, dat
 
     }
 
-    this.setArray = function (startElementIndex = 0, info = [0]) {
+    this.setArray = function (startElementIndex = 0, values = [0]) {
         //Sets an array of data starting with startElement
-        if (startElementIndex < 0 || startElementIndex + info.length > elementCount) {
-            throw "Error, cannot set elements outside of array Expected Range: 0 - " + (elementCount - 1) + " Values sent: " + startElementIndex + " - " + (startElementIndex + info.length);
+        if (startElementIndex < 0 || startElementIndex + values.length > elementCount) {
+            throw "Error, cannot set elements outside of array Expected Range: 0 - " + (elementCount - 1) + " Values sent: " + startElementIndex + " - " + (startElementIndex + values.length);
         }
-        var passed = true;
-        for (var i = 0; i < info.length; i++) {
-            passed = this.setData(startElementIndex + i, info[i]);
-            if (!passed) {
-                break;
-            }
+
+        // for (var i = 0; i < info.length; i++) {
+        //     this.setData(startElementIndex + i, info[i]);
+        // }
+
+        var valIndex = 0;
+        for(var i = startElementIndex; i < startElementIndex + values.length; i += MAX_ARRAY_SIZE){
+            
+            var arrayId = Math.floor(i / MAX_ARRAY_SIZE);
+            var indexInArray = i % MAX_ARRAY_SIZE;
+            // @ts-ignore
+            dataArrays[arrayId].set(values.slice(valIndex, Math.min(valIndex + MAX_ARRAY_SIZE - indexInArray, valIndex + values.length)), indexInArray);
+            valIndex += Math.min(valIndex + MAX_ARRAY_SIZE - indexInArray, valIndex + values.length);
+
         }
-        return passed;
 
     }
 
@@ -157,11 +163,11 @@ export function BinaryData(maxElementSize = 1, data = [0], elementCount = 1, dat
                 break;
             }
             case ARRAY_TYPE.U16: { 
-                dataArrays.push(new Uint8Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
+                dataArrays.push(new Uint16Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
                 break;
             }
             case ARRAY_TYPE.U32: {   
-                dataArrays.push(new Uint8Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
+                dataArrays.push(new Uint32Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
                 break;
             }
         }

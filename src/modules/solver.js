@@ -90,44 +90,6 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
 
     }
 
-    /**
-     * @param {number[]}list
-     * @param {number[]}indexList
-     */
-    function sortList(list, indexList=[]){
-        // the list is sorted in place, the return value is a map to return the list to the original order
-        if(indexList.length != list.length){
-            indexList = [];
-            for(var i = 0; i < list.length; i++){
-                indexList.push(i);
-            }
-        }
-
-        // bubble sort the list
-        var hasSwapped = true;
-        var sortedPortion = list.length - 1;
-
-        while(hasSwapped){
-            hasSwapped = false;
-            
-            for(var i = 0; i < sortedPortion; i ++){
-                if(list[i] < list[i + 1]){
-                    hasSwapped = true;
-                    var tmp = list[i];
-                    list[i] = list[i + 1];
-                    list[i + 1] = tmp;
-
-                    tmp = indexList[i];
-                    indexList[i] = indexList[i + 1];
-                    indexList[i + 1] = tmp;
-
-                }
-            }
-            sortedPortion --;
-        }
-
-        return indexList;
-    }
 
     function estimateMoves(cubeData, cubeNumber){
         var score = scoreCube(cubeData, cubeNumber);
@@ -157,8 +119,9 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
     }
 
     startCallBack(cancelSolve);
+    var cubeScore = scoreCube(cubeData, cubeNumber);
 
-    // This is where if we had a web worker, we would send work over there
+    console.log("Starting score:", cubeScore);
     
     console.log(cubeData.getCubeData(0).getArray())
     // fun statistics we are going to watch
@@ -171,6 +134,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
     // We will start by setting up the data structures we are going to need
     var cubeSize = cubeData.getCubeSize();
     var all1MoveAlgs = new AlgorithmStorage(cubeSize, 1);
+    /**@type {Filter[]} */
     var all1MoveFilters = [];
     all1MoveAlgs.selfIndex();
 
@@ -195,7 +159,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             var finalAlg = stack.peek().alg;
             var strg = new AlgorithmStorage(cubeSize, finalAlg.length, 1);
             strg.addAlgorithm(finalAlg);
-            successCallBack(strg, 0, 0, 0);
+            successCallBack(strg, 0, performance.now() - startTime, cubesChecked);
             return;
         }else if (aCost == Infinity){
             console.log("Failed")
@@ -234,7 +198,10 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             }
             if(resCost < least){
                 least = resCost;
+               // var tempStg = new AlgorithmStorage(cubeSize, node.alg.length, 1);
+                //updateCallBack("Current Best Alg: " + tempStg.getMovesAsText(0));
             }
+            path.pop();
 
         }
         return resCost;
@@ -255,7 +222,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             if(AlgorithmStorage.checkNextMove(cubeSize, cubeNode.alg, i)){
                 newCubeData.setCube(cubeNode.cubeData.getCubeData(cubeNode.cubeNumber), i);
                 all1MoveFilters[i].applyFilter(newCubeData, i);
-                var newNode = new CubeNode(cubeData, i);
+                var newNode = new CubeNode(newCubeData, i);
                 newNode.alg = cubeNode.alg.slice(0);
                 newNode.alg.push(i);
                 validCubes.push(newNode);
@@ -273,17 +240,13 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             me.head = newNode;
         }
 
-        /**
-         * 
-         * @returns {CubeNode}
-         */
         this.pop = function(){
-            var result = me.head;
-
+            var oldHead = me.head;
             if(me.head != null){
                 me.head = me.head.next;
             }
-            return result;
+            // Trying to find out why the memory usage sky rockets.
+            oldHead.next = null;
         }
 
         /**

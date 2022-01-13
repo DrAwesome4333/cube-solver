@@ -468,11 +468,7 @@ function CubeData(cubeSize = 3, cubeCount = 1, storageFormat = CUBE_DATA_TYPE.Su
 
                             for (var cubeN = 0; cubeN < cubeCount; cubeN++) {
                                 var stickerId = this.getSticker(face, x, y, cubeN);
-                                var success = newData.setData(i + cubeN * newIndexCount, stickerId);
-                                if (!success) {
-                                    console.log(stickerId);
-                                    errorLog.push(new CubeError("Error, could not set sticker durring converion", cubeN, -1, [false, false, false, false], "CONVERION_FAILURE"))
-                                }
+                                newData.setData(i + cubeN * newIndexCount, stickerId);
                             }
                         }
                         if (errorLog.length == 0) {

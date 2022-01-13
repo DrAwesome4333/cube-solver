@@ -187,14 +187,16 @@ function AlgorithmStorage(cubeSize, algLength=1, maxAlgs=1000000) {
         // If we are over the max, we need to create a new data storage
         if (algCount < maxAlgs) {
             algCount++;
-            return data.setArray(algLength * (algCount - 1), alg);
+            data.setArray(algLength * (algCount - 1), alg);
+            return true;
         } else {
             // Increase maxAlgs by 10%
             var newData = new BinaryData(maxAcceptedValue, data.getArray(), Math.ceil(maxAlgs * 1.1) * algLength);
             data = newData;
             maxAlgs = Math.ceil(maxAlgs * 1.1);
             algCount++;
-            return data.setArray(algLength * (algCount - 1), alg);
+            data.setArray(algLength * (algCount - 1), alg);
+            return true;
         }
 
     }
