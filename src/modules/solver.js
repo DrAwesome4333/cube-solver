@@ -8,8 +8,8 @@ import {CubeData, CubeError, Cubie} from "./cubedata.js"
 /**
 * @param {AlgorithmStorage} algorithm 
 */
- function basicSuccesCallBack(algorithm, algId=0, time=0, cycles=0){
-    console.log(`Cube was solved in ${Math.round(time)} seconds and ${cycles} cycles. The algorithm is ${algorithm.getMovesAsText(algId)}`);
+ function basicSuccesCallBack(algorithm, algId=0, time=0, cubesVisited=0){
+    console.log(`Cube was solved in ${Math.round(time)} seconds and visited ${cubesVisited} cubes along the way. The algorithm is ${algorithm.getMovesAsText(algId)}`);
 }
 
 /**
@@ -159,7 +159,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             var finalAlg = stack.peek().alg;
             var strg = new AlgorithmStorage(cubeSize, finalAlg.length, 1);
             strg.addAlgorithm(finalAlg);
-            successCallBack(strg, 0, performance.now() - startTime, cubesChecked);
+            successCallBack(strg, 0, Math.ceil((performance.now() - startTime)/1000), cubesChecked);
             return;
         }else if (aCost == Infinity){
             console.log("Failed")
@@ -198,8 +198,8 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             }
             if(resCost < least){
                 least = resCost;
-               // var tempStg = new AlgorithmStorage(cubeSize, node.alg.length, 1);
-                //updateCallBack("Current Best Alg: " + tempStg.getMovesAsText(0));
+                var tempStg = new AlgorithmStorage(cubeSize, node.alg.length, 1);
+                updateCallBack("Current Best Alg: " + tempStg.getMovesAsText(0) + "\nCubes Visited: " + cubesChecked);
             }
             path.pop();
 
@@ -226,6 +226,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
                 newNode.alg = cubeNode.alg.slice(0);
                 newNode.alg.push(i);
                 validCubes.push(newNode);
+                cubesChecked ++;
             }
         }
         return validCubes;
