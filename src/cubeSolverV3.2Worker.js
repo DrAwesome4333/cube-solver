@@ -1,5 +1,5 @@
 //@ts-check
-import {solveCube, CubeNode} from "./modules/solver.js"
+import {solveCube} from "./modules/solver.js"
 import {BinaryData} from "./modules/binarydata.js"
 import {AlgorithmStorage, Filter} from "./modules/algorithmstorage.js"
 import {CUBE_DATA_TYPE, CUBIE_TYPE,CUBIE_STYLE, CUBE_FACE} from "./modules/cubeconsts.js"
