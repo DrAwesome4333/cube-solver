@@ -5,7 +5,7 @@ import {AlgorithmStorage, Filter} from "./modules/algorithmstorage.js"
 import {CUBE_DATA_TYPE, CUBIE_TYPE,CUBIE_STYLE, CUBE_FACE} from "./modules/cubeconsts.js"
 import {CubeData, CubeError, Cubie} from "./modules/cubedata.js"
 import {Matrix} from "./modules/matrix.js"
-import {solveCube, CubeNode} from "./modules/solver.js"
+import {solveCube} from "./modules/solver.js"
 
 		const PR = Math.PI / 180;//(Pi ratio, use this to convert degrees to Radians)
 

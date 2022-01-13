@@ -153,17 +153,14 @@ export function BinaryData(maxElementSize = 1, data = [0], elementCount = 1, dat
         // Create an array of arrays to keep the data, that way it does not have to be one continous block.
         switch (arrayType){
             case ARRAY_TYPE.U8: {
-                
                 dataArrays.push(new Uint8Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
                 break;
             }
-            case ARRAY_TYPE.U16: {
-                
+            case ARRAY_TYPE.U16: { 
                 dataArrays.push(new Uint8Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
                 break;
             }
-            case ARRAY_TYPE.U32: {
-                
+            case ARRAY_TYPE.U32: {   
                 dataArrays.push(new Uint8Array(Math.min(MAX_ARRAY_SIZE, elementCount - i)));
                 break;
             }

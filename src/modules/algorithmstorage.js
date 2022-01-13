@@ -8,7 +8,7 @@ var shouldLogErrors = true;
 /*
     class AlgorithmStorage  This class will store several Algorithms of the same size and length in a compact format
     ------------------
-    - data:BinaryData
+    - data:Uint8Array
     - algLength:int
     - algCount:int
     - cubeSize:int
