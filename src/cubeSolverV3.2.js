@@ -1206,8 +1206,10 @@ import {solveCube} from "./modules/solver.js"
 		/**
 		 * @param {AlgorithmStorage} algorithm 
 		 */
-		function basicSuccessCallBack(algorithm, algId=0, time=0, cycles=0){
-			console.log(`Cube was solved in ${Math.round(time)} seconds and ${cycles} cycles. The algorithm is ${algorithm.getMovesAsText(algId)}`);
+		function basicSuccessCallBack(algorithm, algId=0, time=0, cubesVisited=0){
+			
+			console.log(`Cube was solved in ${Math.round(time)} seconds and visited ${cubesVisited} cubes along the way.\
+			<br>The algorithm is ${algorithm.getMovesAsText(algId)}`);
 			var resAlg = algorithm.getMovesInPairs(algId);
 			for (var i = 0; i < resAlg.length; i += 2) {
 				testCube.addRotation(resAlg[i], resAlg[i + 1]);

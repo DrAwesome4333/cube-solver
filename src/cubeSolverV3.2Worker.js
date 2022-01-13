@@ -21,14 +21,14 @@ onmessage = function(e){
      * @param {AlgorithmStorage} alg 
      * @param {Number} algNum 
      * @param {Number} time 
-     * @param {Number} cycles 
+     * @param {Number} cubesVisited 
      */
-    function success(alg, algNum, time, cycles){
+    function success(alg, algNum, time, cubesVisited){
         var resp = {
             type:"sucs",
             alg:alg.getMoves(algNum),
             time:time,
-            cycles:cycles,
+            cubesVisited:cubesVisited,
             cubeSize: cubeData.getCubeSize()
         };
         postMessage(resp);

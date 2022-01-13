@@ -119,15 +119,20 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
     }
 
     startCallBack(cancelSolve);
-    var cubeScore = scoreCube(cubeData, cubeNumber);
+
+    
+    var startData = new CubeData(cubeSize, 1, CUBE_DATA_TYPE.Piece, cubeData.getCubeData(cubeNumber));
+
+    var cubeScore = scoreCube(startData, cubeNumber);
 
     console.log("Starting score:", cubeScore);
     
-    console.log(cubeData.getCubeData(0).getArray())
+    console.log(startData.getCubeData(0).getArray());
+
+
     // fun statistics we are going to watch
     var startTime = performance.now();
     var cycles = 0;
-    var frameCycles = 0;
     var cubesChecked = 0;
     const CYCLES_PER_FRAME = cyclesPerFrame;
 
@@ -141,17 +146,12 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
 
     var agCount = all1MoveAlgs.getAlgCount();
     for(var i = 0; i < agCount; i ++){
-        all1MoveFilters.push(all1MoveAlgs.getFilter(i, CUBE_DATA_TYPE.Surface));
+        all1MoveFilters.push(all1MoveAlgs.getFilter(i, CUBE_DATA_TYPE.Piece));
     }
-
-    // Calculate the max score a cube can have without being solved
-    var tmpCube = new CubeData(cubeSize, 1, CUBE_DATA_TYPE.Surface);
-    all1MoveFilters[0].applyFilter(tmpCube);
-    var maximumUnsolvedScore = scoreCube(tmpCube, 0);
     
-    var bound = estimateMoves(cubeData, cubeNumber);
+    var bound = estimateMoves(startData, 0);
     var stack = new CubeStack();
-    stack.push(new CubeNode(cubeData, cubeNumber))
+    stack.push(new CubeNode(startData, 0))
 
     while(!stack.isEmpty()){
         var aCost = search(stack, 0, bound);
@@ -198,12 +198,16 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             }
             if(resCost < least){
                 least = resCost;
-                var tempStg = new AlgorithmStorage(cubeSize, node.alg.length, 1);
-                updateCallBack("Current Best Alg: " + tempStg.getMovesAsText(0) + "\nCubes Visited: " + cubesChecked);
             }
             path.pop();
 
         }
+        
+        var tempStg = new AlgorithmStorage(cubeSize, node.alg.length, 1);
+        tempStg.addAlgorithm(node.alg);
+        updateCallBack("Current Best Alg: " + tempStg.getMovesAsText(0) + 
+        "<br>Cubes Visited: " + cubesChecked + 
+        "<br>Time elapsed: " + Math.ceil((performance.now() - startTime)/1000) + " seconds");
         return resCost;
 
 
@@ -215,7 +219,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
      */
     function generateNextCubes(cubeNode){
         var cubeCount = all1MoveAlgs.getAlgCount();
-        var newCubeData = new CubeData(cubeSize, cubeCount);
+        var newCubeData = new CubeData(cubeSize, cubeCount, CUBE_DATA_TYPE.Piece);
         var validCubes = [];
 
         for(var i = 0; i < cubeCount; i++){
