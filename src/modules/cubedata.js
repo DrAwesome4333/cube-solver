@@ -1124,6 +1124,17 @@ CubeData.verifyCube = function (cubeData, cubeNumber = 0) {
 
 }
 
+/**
+ * 
+ * @param {CubeData} data1 
+ * @param {Number} number1 
+ * @param {CubeData} data2 
+ * @param {Number} number2 
+ */
+CubeData.equals = function(data1, number1, data2, number2){
+    return data1.getCubeDataAsString(number1) == data2.getCubeDataAsString(number2);
+}
+
 /*
 class Cubie
 -----------------

@@ -188,7 +188,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
         }
 
         var least = Infinity;
-        var newNodes = generateNextCubes(node);
+        var newNodes = generateNextCubes(node, path);
         for(var i = 0; i < newNodes.length; i++){
             // TODO Check if cube is in current stack
             path.push(newNodes[i]);
@@ -217,7 +217,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
      * 
      * @param {CubeNode} cubeNode 
      */
-    function generateNextCubes(cubeNode){
+    function generateNextCubes(cubeNode, path){
         var cubeCount = all1MoveAlgs.getAlgCount();
         var newCubeData = new CubeData(cubeSize, cubeCount, CUBE_DATA_TYPE.Piece);
         var validCubes = [];
@@ -226,13 +226,36 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             if(AlgorithmStorage.checkNextMove(cubeSize, cubeNode.alg, i)){
                 newCubeData.setCube(cubeNode.cubeData.getCubeData(cubeNode.cubeNumber), i);
                 all1MoveFilters[i].applyFilter(newCubeData, i);
+
+                if(path.isInStack(newCubeData.getCubeDataAsString(i))){
+                    continue;
+                }
+
                 var newNode = new CubeNode(newCubeData, i);
                 newNode.alg = cubeNode.alg.slice(0);
                 newNode.alg.push(i);
+                newNode.estimate = estimateMoves(newCubeData, i);
                 validCubes.push(newNode);
                 cubesChecked ++;
             }
         }
+
+        // Sort the list of cubes to prioratize better looking ones first
+        for(var i = 0; i < validCubes.length; i++){
+            var hasSwapped = false;
+            for(var j = 1; j < validCubes.length - i; j++){
+                if(validCubes[j - 1].estimate > validCubes[j].estimate){
+                    hasSwapped = true;
+                    var temp = validCubes[j];
+                    validCubes[j] = validCubes[j - 1];
+                    validCubes[j - 1] = temp;
+                }
+            }
+            if(!hasSwapped){
+                break;
+            }
+        }
+
         return validCubes;
     }
 
@@ -252,6 +275,17 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
             }
             // Trying to find out why the memory usage sky rockets.
             oldHead.next = null;
+        }
+
+        this.isInStack = function(data){
+            var curr = me.head;
+            while(curr != null){
+                if(curr.cubeData.getCubeDataAsString(curr.cubeNumber) == data){
+                    return true;
+                }
+                curr = curr.next;
+            }
+            return false;
         }
 
         /**
@@ -277,6 +311,7 @@ function solveCube(cubeData, cubeNumber=0, startCallBack=basicStartCallBack, suc
         this.cubeData = cubeData;
         this.cubeNumber = cubeNumber;
         this.alg = [];
+        this.estimate = 0;
         this.next = next;
     }
     
